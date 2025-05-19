@@ -50,6 +50,51 @@ class CosmosDbClient
         return $this->sendRequest($request);
     }
 
+    public function getDatabase(string $dbId): Result
+    {
+        $request = $this->createHttpRequest('GET', "{$this->endpoint}/dbs/{$dbId}", 'dbs', "dbs/{$dbId}");
+        return $this->sendRequest($request);
+    }
+
+    public function createContainer(string $dbId, string $collId): Result
+    {
+        $request = $this->createHttpRequest('POST', "{$this->endpoint}/dbs/{$dbId}/colls", 'colls', "dbs/{$dbId}", ['id' => $collId, 'partitionKey' => ['paths' => ['/id'], 'kind' => 'Hash', 'Version' => 2]]);
+        return $this->sendRequest($request);
+    }
+
+    public function listContainers(string $dbId): Result
+    {
+        $request = $this->createHttpRequest('GET', "{$this->endpoint}/dbs/{$dbId}/colls", 'colls', "dbs/{$dbId}");
+        return $this->sendRequest($request);
+    }
+
+    public function getContainer(string $dbId, string $collId): Result
+    {
+        $request = $this->createHttpRequest('GET', "{$this->endpoint}/dbs/{$dbId}/colls/{$collId}", 'colls', "dbs/{$dbId}/colls/{$collId}");
+        return $this->sendRequest($request);
+    }
+
+    public function deleteContainer(string $dbId, string $collId): Result
+    {
+        $request = $this->createHttpRequest('DELETE', "{$this->endpoint}/dbs/{$dbId}/colls/{$collId}", 'colls', "dbs/{$dbId}/colls/{$collId}");
+        return $this->sendRequest($request);
+    }
+
+    public function replaceContainer(string $dbId, string $collId): Result
+    {
+        $request = $this->createHttpRequest('PUT', "{$this->endpoint}/dbs/{$dbId}/colls/{$collId}", 'colls', "dbs/{$dbId}/colls/{$collId}", [
+            'id' => $collId,
+            // TODO: partitionKey が必須らしいが、本物を使ってみないとわからない
+            // https://learn.microsoft.com/en-us/rest/api/cosmos-db/replace-a-collection
+            'partitionKey' => ['paths' => ['/id'], 'kind' => 'Hash', 'Version' => 2],
+            'indexingPolicy' => [
+                'indexingMode' => 'consistent',
+                'automatic' => true,
+            ],
+        ]);
+        return $this->sendRequest($request);
+    }
+
     protected function generateAuthToken(string $verb, string $resourceType, string $resourceLink, string $date): string
     {
         $key = base64_decode($this->key);
@@ -95,6 +140,7 @@ class CosmosDbClient
             echo $ge->getMessage();
             return new Result($error);
         } catch (\RuntimeException $re) {
+            echo $re->getMessage();
             throw new CosmosDbException($re->getMessage(), $re->getCode(), $re);
         }
 
