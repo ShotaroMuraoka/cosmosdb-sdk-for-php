@@ -1,8 +1,7 @@
 <?php
 
-namespace Muraokashotaro\CosmosDb\Exception;
+namespace ShotaroMuraoka\CosmosDb\Exception;
 
-class CosmosDbException extends \RuntimeException {
-
-
+final class CosmosDbException extends \RuntimeException
+{
 }
