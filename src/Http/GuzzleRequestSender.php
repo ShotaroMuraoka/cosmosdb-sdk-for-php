@@ -45,11 +45,9 @@ final class GuzzleRequestSender implements CosmosDbRequestSenderInterface
                 $response = $re->getResponse();
                 $statusCode = $response->getStatusCode();
                 $message = (string) $response->getBody();
-                echo $message;
                 return Result::failure($message, $statusCode);
             }
             $message = $re->getMessage();
-            echo $message;
             return Result::failure($message);
         } catch (\Throwable $th) {
             return Result::failure($th->getMessage());

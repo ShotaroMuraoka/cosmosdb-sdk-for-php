@@ -19,6 +19,7 @@ use ShotaroMuraoka\CosmosDb\Http\GuzzleRequestSender;
  * @method Result listContainers(array $params)
  * @method Result getContainer(array $params)
  * @method Result replaceContainer(array $params)
+ * @method Result getPartitionKeyRangesForContainer(array $params)
  */
 final class CosmosDbClient
 {

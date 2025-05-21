@@ -25,6 +25,7 @@ final class CommandFactory
             'listContainers' => new ListContainersCommand($this->client),
             'getContainer' => new GetContainerCommand($this->client),
             'replaceContainer' => new ReplaceContainerCommand($this->client),
+            'getPartitionKeyRangesForContainer' => new GetPartitionKeyRangesForContainerCommand($this->client),
             default => throw new InvalidArgumentException("Unknown command type: $commandType"),
         };
     }
