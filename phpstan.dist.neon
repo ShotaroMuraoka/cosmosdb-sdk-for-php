@@ -1,0 +1,8 @@
+parameters:
+  level: 0
+  paths:
+    - src
+    - tests
+  parallel:
+        processTimeout: 300.0
+  ignoreErrors:
