@@ -1,0 +1,20 @@
+<?php
+
+namespace ShotaroMuraoka\CosmosDb\Dto\Request;
+
+final class GetDatabaseRequest implements RequestDtoInterface
+{
+    /**
+     * @param array<string, mixed>  $body
+     * @param array<string, string> $headers
+     */
+    public function __construct(
+        public array $body = [],
+        public array $headers = [],
+        public array $pathParameters = [],
+    ) {
+        if (empty($this->body['id'])) {
+            throw new \InvalidArgumentException('Database id is required');
+        }
+    }
+}

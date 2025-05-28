@@ -9,7 +9,6 @@ interface CosmosDbRequestSenderInterface
     public function send(
         string $method,
         string $resourcePath,
-        string $resourceType,
         array  $headers = [],
         ?array $body = null,
     ): Result;

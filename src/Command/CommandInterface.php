@@ -3,8 +3,9 @@
 namespace ShotaroMuraoka\CosmosDb\Command;
 
 use ShotaroMuraoka\CosmosDb\Result\Result;
+use ShotaroMuraoka\CosmosDb\Dto\Request\RequestDtoInterface;
 
 interface CommandInterface
 {
-    public function execute(array $params): Result;
+    public function execute(RequestDtoInterface $request): Result;
 }

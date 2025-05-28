@@ -1,119 +1,148 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use Muraokashotaro\CosmosDb\CosmosDbClient;
+use ShotaroMuraoka\CosmosDb\CosmosDbClient;
+use ShotaroMuraoka\CosmosDb\Auth\AuthStrategyInterface;
+use ShotaroMuraoka\CosmosDb\Http\CosmosDbRequestSenderInterface;
+use ShotaroMuraoka\CosmosDb\Result\Result;
+use ShotaroMuraoka\CosmosDb\Dto\Request\CreateDatabaseRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\DeleteDatabaseRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\ListDatabasesRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\CreateContainerRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\DeleteContainerRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\ListContainersRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\GetDatabaseRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\GetContainerRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\ReplaceContainerRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\GetPartitionKeyRangesForContainerRequest;
 
 beforeEach(function () {
-//    $this->client = new CosmosDbClient('https://localhost:80801', 'test-db', 'test-key');
+    $this->sender = new class implements CosmosDbRequestSenderInterface {
+        public array $called = [];
+
+        public function send(string $method, string $resourcePath, array $headers = [], ?array $body = null): Result
+        {
+            $this->called = compact('method', 'resourcePath', 'headers', 'body');
+            return Result::success(
+                body: $body,
+                headers: $headers,
+                uri: 'https://localhost' . $resourcePath,
+                statusCode: 200
+            );
+        }
+    };
+
+    $this->auth = new class implements AuthStrategyInterface {
+        public function getAuthHeaders(string $verb, string $resourceType, string $resourceLink, string $date): array
+        {
+            return [];
+        }
+    };
+    $this->client = new CosmosDbClient($this->auth, $this->sender);
 });
 
-//it('create a database', function() {
-//    $this->client->createDatabase('test-db');
-//    $databases = $this->client->listDatabases();
-//    expect($databases)->toContain('test-db');
-//});
-//
-//it('list databases', function() {
-//    $databases = $this->client->listDatabases();
-//    expect($databases)->toBeArray();
-//});
-//
-//it('get a database', function() {
-//    $database = $this->client->getDatabase('test-db');
-//    expect($database)->toBeInstanceOf(\Muraokashotaro\CosmosDb\Database::class);
-//});
-//
-//it('delete a database', function() {
-//    $this->client->deleteDatabase('test-db');
-//    $databases = $this->client->listDatabases();
-//    expect($databases)->not()->toContain('test-db');
-//});
+describe('Databases', function () {
+    it('create a database', function () {
+        $dto = new CreateDatabaseRequest(['id' => 'mydb']);
+        $result = $this->client->createDatabase($dto);
 
-//it('create a document', function() {
-//    $mock = new MockHandler([
-//        new Response(201, [], json_encode([
-//            'id' => '1',
-//            'name' => 'Test Document'
-//        ], JSON_THROW_ON_ERROR)),
-//    ]);
-//
-//    $handlerStack = HandlerStack::create($mock);
-//    $mockHttpClient = new Client(['handler' => $handlerStack]);
-//
-//    $client = new CosmosDbClient(
-//        'https://localhost:8081',
-//        'auth-key',
-//        $mockHttpClient,
-//    );
-//
-//    $document = ['id' => '1', 'name' => 'Test Document'];
-//    $response = $client->createDocument('db', 'container', $document);
-//
-//    expect($response)
-//        ->toHaveKey('id', '1')
-//        ->and($response)->toHaveKey('name', 'Test Document');
-//});
+        expect($this->sender->called['method'])->toBe('POST')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/')
+            ->and($this->sender->called['body'])->toBe(['id' => 'mydb'])
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
 
-it('production create a document', function() {
-    $client = new CosmosDbClient(
-        'https://localhost:8081',
-        'C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==',
-    );
+    it('list databases', function () {
+        $dto = new ListDatabasesRequest();
+        $result = $this->client->listDatabases($dto);
 
-    $document = ['id' => '1', 'name' => 'Test Document'];
-    $response = $client->createDocument('db', 'container', $document);
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
 
-    expect($response)
-        ->toHaveKey('id', '1')
-        ->and($response)->toHaveKey('name', 'Test Document');
+    it('delete a database', function () {
+        $dto = new DeleteDatabaseRequest(['id' => 'mydb']);
+        $result = $this->client->deleteDatabase($dto);
+
+        expect($this->sender->called['method'])->toBe('DELETE')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('get a database', function () {
+        $dto = new GetDatabaseRequest(['id' => 'mydb']);
+        $result = $this->client->getDatabase($dto);
+
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
 });
 
-it('production create database', function() {
-    $client = new CosmosDbClient(
-        'https://localhost:8081',
-        'C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=='
-    );
+describe('Containers', function () {
+    it('creates a container', function () {
+        $body = ['id' => 'cont', 'partitionKey' => ['/pk']];
+        $header = [];
+        $pathParameters = ['dbId' => 'mydb'];
+        $dto = new CreateContainerRequest($body, $header, $pathParameters);
+        $result = $this->client->createContainer($dto);
 
-    $response = $client->createDatabase();
+        expect($this->sender->called['method'])->toBe('POST')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls')
+            ->and($this->sender->called['body'])->toBe($body)
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
 
-    expect($response)
-        ->toHaveKey('id', '1')
-        ->and($response)->toHaveKey('name', 'Test Document');
+    it('lists containers', function () {
+        $body = ['id' => 'cont', 'partitionKey' => ['/pk']];
+        $header = [];
+        $pathParameters = ['dbId' => 'mydb'];
+        $dto = new ListContainersRequest($body, $header, $pathParameters);
+        $result = $this->client->listContainers($dto);
+
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('deletes a container', function () {
+        $dto = new DeleteContainerRequest(pathParameters: ['dbId' => 'cont', 'collId' => 'mycoll']);
+        $result = $this->client->deleteContainer($dto);
+
+        expect($this->sender->called['method'])->toBe('DELETE')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/cont/colls/mycoll')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('gets a container', function () {
+        $dto = new GetContainerRequest(pathParameters: ['dbId' => 'cont', 'collId' => 'mycoll']);
+        $result = $this->client->getContainer($dto);
+
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/cont/colls/mycoll')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('replaces a container', function () {
+        $body = ['id' => 'cont', 'indexingPolicy' => []];
+        $dto = new ReplaceContainerRequest(
+            pathParameters: ['dbId' => 'cont', 'collId' => 'mycoll'],
+            body: $body
+        );
+        $result = $this->client->replaceContainer($dto);
+
+        expect($this->sender->called['method'])->toBe('PUT')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/cont/colls/mycoll')
+            ->and($this->sender->called['body'])->toBe($body)
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('gets partition key ranges for a container', function () {
+        $dto = new GetPartitionKeyRangesForContainerRequest(pathParameters: ['dbId' => 'cont', 'collId' => 'mycoll']);
+        $result = $this->client->getPartitionKeyRangesForContainer($dto);
+
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/cont/colls/mycoll/pkranges')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
 });
-
-//it('list documents', function() {
-//    $documents = $this->client->listDocuments('test-db', 'test-collection');
-//    expect($documents)->toBeArray();
-//});
-//
-//it('get a document', function() {
-//    $document = $this->client->getDocument('test-db', 'test-collection', 'test-doc');
-//    expect($document)->toBeArray();
-//    expect($document['id'])->toBe('test-doc');
-//});
-//
-//it('replace a document', function() {
-//    $this->client->replaceDocument('test-db', 'test-collection', 'test-doc', ['id' => 'test-doc', 'name' => 'Updated Document']);
-//    $document = $this->client->getDocument('test-db', 'test-collection', 'test-doc');
-//    expect($document['name'])->toBe('Updated Document');
-//});
-//
-//it('patch a document', function() {
-//    $this->client->patchDocument('test-db', 'test-collection', 'test-doc', ['name' => 'Patched Document']);
-//    $document = $this->client->getDocument('test-db', 'test-collection', 'test-doc');
-//    expect($document['name'])->toBe('Patched Document');
-//});
-//
-//it('delete a document', function() {
-//
-//});
-//
-//it('query documents', function() {
-//    $query = 'SELECT * FROM c WHERE c.name = "Patched Document"';
-//    $documents = $this->client->queryDocuments('test-db', 'test-collection', $query);
-//    expect($documents)->toBeArray();
-//    expect($documents[0]['name'])->toBe('Patched Document');
-//});

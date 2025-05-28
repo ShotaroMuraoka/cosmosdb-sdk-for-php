@@ -13,13 +13,12 @@ final class GuzzleRequestSender implements CosmosDbRequestSenderInterface
 
     public function __construct()
     {
-        $this->client = new Client(['base_uri' => getenv('COSMOSDB_BASE_URI') ?: '','verify' => '/Users/muraokashotaro/emulatorcert.crt',]);
+        $this->client = new Client(['base_uri' => getenv('COSMOSDB_BASE_URI') ?: '', 'verify' => '/Users/muraokashotaro/emulatorcert.crt',]);
     }
 
     public function send(
         string $method,
         string $resourcePath,
-        string $resourceType,
         array  $headers = [],
         ?array $body = null
     ): Result
@@ -37,14 +36,14 @@ final class GuzzleRequestSender implements CosmosDbRequestSenderInterface
             return Result::success(
                 body: $body ?? [],
                 headers: $response->getHeaders(),
-                uri: (string) $request->getUri(),
+                uri: (string)$request->getUri(),
                 statusCode: $response->getStatusCode(),
             );
         } catch (RequestException $re) {
             if ($re->hasResponse()) {
                 $response = $re->getResponse();
                 $statusCode = $response->getStatusCode();
-                $message = (string) $response->getBody();
+                $message = (string)$response->getBody();
                 return Result::failure($message, $statusCode);
             }
             $message = $re->getMessage();
