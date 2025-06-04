@@ -21,7 +21,7 @@ final class DeleteDatabaseCommand implements CommandInterface
 
     public function execute(RequestDtoInterface $request): Result
     {
-        $id = $request->body['id'];
+        $id = $request->pathParameters['id'];
         $headers = $this->client->authStrategy->getAuthHeaders(
             verb: self::METHOD,
             resourceType: self::RESOURCE_TYPE,

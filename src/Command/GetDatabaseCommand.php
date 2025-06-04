@@ -21,9 +21,9 @@ final class GetDatabaseCommand implements CommandInterface
 
     public function execute(RequestDtoInterface $request): Result
     {
-        $id = $request->body['id'];
+        $id = $request->pathParameters['id'];
         $headers = $this->client->authStrategy->getAuthHeaders(
-            verb: 'GET',
+            verb: self::METHOD,
             resourceType: self::RESOURCE_TYPE,
             resourceLink: sprintf(self::RESOURCE_LINK, $id),
             date: gmdate('D, d M Y H:i:s T'),

@@ -13,7 +13,7 @@ final class GetDatabaseRequest implements RequestDtoInterface
         public array $headers = [],
         public array $pathParameters = [],
     ) {
-        if (empty($this->body['id'])) {
+        if (empty($this->pathParameters['id'])) {
             throw new \InvalidArgumentException('Database id is required');
         }
     }

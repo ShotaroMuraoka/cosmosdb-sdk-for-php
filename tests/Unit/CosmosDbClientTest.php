@@ -61,7 +61,7 @@ describe('Databases', function () {
     });
 
     it('delete a database', function () {
-        $dto = new DeleteDatabaseRequest(['id' => 'mydb']);
+        $dto = new DeleteDatabaseRequest([], [], ['id' => 'mydb']);
         $result = $this->client->deleteDatabase($dto);
 
         expect($this->sender->called['method'])->toBe('DELETE')
@@ -70,7 +70,7 @@ describe('Databases', function () {
     });
 
     it('get a database', function () {
-        $dto = new GetDatabaseRequest(['id' => 'mydb']);
+        $dto = new GetDatabaseRequest([], [], ['id' => 'mydb']);
         $result = $this->client->getDatabase($dto);
 
         expect($this->sender->called['method'])->toBe('GET')

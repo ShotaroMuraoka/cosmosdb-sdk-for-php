@@ -14,7 +14,7 @@ final class DeleteDatabaseRequest implements RequestDtoInterface
         public array $pathParameters = [],
     )
     {
-        if ($this->body['id'] === '') {
+        if (empty($this->pathParameters['id'])) {
             throw new \InvalidArgumentException('Database id is required');
         }
     }
