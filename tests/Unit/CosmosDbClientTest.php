@@ -146,3 +146,98 @@ describe('Containers', function () {
             ->and($result)->toBeInstanceOf(Result::class);
     });
 });
+
+describe('Documents', function () {
+    it('creates a document', function () {
+        $body = ['id' => 'doc1', 'name' => 'Document 1'];
+        $header = [];
+        $pathParameters = ['dbId' => 'mydb', 'collId' => 'mycoll'];
+        $dto = new CreateDocumentRequest($body, $header, $pathParameters);
+        $result = $this->client->createDocument($dto);
+
+        expect($this->sender->called['method'])->toBe('POST')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs')
+            ->and($this->sender->called['body'])->toBe($body)
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('lists documents', function () {
+        $body = [];
+        $header = [];
+        $pathParameters = ['dbId' => 'mydb', 'collId' => 'mycoll'];
+        $dto = new ListDocumentsRequest($body, $header, $pathParameters);
+        $result = $this->client->listDocuments($dto);
+
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('get a document', function () {
+        $dto = new GetDocumentRequest(pathParameters: ['dbId' => 'mydb', 'collId' => 'mycoll', 'docId' => 'doc1']);
+        $result = $this->client->getDocument($dto);
+
+        expect($this->sender->called['method'])->toBe('GET')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs/doc1')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('replace a document', function () {
+        $body = ['id' => 'doc1', 'name' => 'Updated Document'];
+        $dto = new ReplaceDocumentRequest(
+            pathParameters: ['dbId' => 'mydb', 'collId' => 'mycoll', 'docId' => 'doc1'],
+            body: $body
+        );
+        $result = $this->client->replaceDocument($dto);
+
+        expect($this->sender->called['method'])->toBe('PUT')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs/doc1')
+            ->and($this->sender->called['body'])->toBe($body)
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('patch a document', function () {
+        $body = [
+            'operations' => [
+                'op' => 'set',
+                'path' => '/Parents/0/Name',
+                'value' => 'Patched Document'
+            ]
+        ];
+        $dto = new PatchDocumentRequest(
+            pathParameters: ['dbId' => 'mydb', 'collId' => 'mycoll', 'docId' => 'doc1'],
+            body: $body
+        );
+        $result = $this->client->patchDocument($dto);
+
+        expect($this->sender->called['method'])->toBe('PATCH')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs/doc1')
+            ->and($this->sender->called['body'])->toBe($body)
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('delete a document', function () {
+        $dto = new DeleteDocumentRequest(pathParameters: ['dbId' => 'mydb', 'collId' => 'mycoll', 'docId' => 'doc1']);
+        $result = $this->client->deleteDocument($dto);
+
+        expect($this->sender->called['method'])->toBe('DELETE')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs/doc1')
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+
+    it('query documents', function () {
+        $body = [
+            'query' => 'SELECT * FROM Families f WHERE f.LastName = "Andersen"',
+            'parameters' => []
+        ];
+        $header = [];
+        $pathParameters = ['dbId' => 'mydb', 'collId' => 'mycoll'];
+        $dto = new QueryDocumentsRequest($body, $header, $pathParameters);
+        $result = $this->client->queryDocuments($dto);
+
+        expect($this->sender->called['method'])->toBe('POST')
+            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb/colls/mycoll/docs')
+            ->and($this->sender->called['body'])->toBe($body)
+            ->and($result)->toBeInstanceOf(Result::class);
+    });
+});
