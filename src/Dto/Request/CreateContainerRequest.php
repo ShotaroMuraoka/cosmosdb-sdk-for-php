@@ -5,7 +5,7 @@ namespace ShotaroMuraoka\CosmosDb\Dto\Request;
 final class CreateContainerRequest implements RequestDtoInterface
 {
     /**
-     * @param array<string, mixed>  $body
+     * @param array<string, mixed> $body
      * @param array<string, string> $headers
      * @param array<string, string> $pathParameters
      */
@@ -13,9 +13,13 @@ final class CreateContainerRequest implements RequestDtoInterface
         public array $body = [],
         public array $headers = [],
         public array $pathParameters = [],
-    ) {
-        if (empty($this->pathParameters['dbId']) || empty($this->body['id']) || !isset($this->body['partitionKey'])) {
-            throw new \InvalidArgumentException('dbId, id and partitionKey are required.');
+    )
+    {
+        if (empty($this->body['id'])) {
+            throw new \InvalidArgumentException('Container id is required.');
+        }
+        if (empty($this->pathParameters['dbId']) || !isset($this->body['partitionKey'])) {
+            throw new \InvalidArgumentException('Database id and partitionKey are required.');
         }
     }
 }

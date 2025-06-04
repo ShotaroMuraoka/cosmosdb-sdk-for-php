@@ -5,8 +5,9 @@ namespace ShotaroMuraoka\CosmosDb\Dto\Request;
 final class ReplaceContainerRequest implements RequestDtoInterface
 {
     /**
-     * @param array<string, mixed>  $body    ['dbId' => string, 'collId' => string, ...]
-     * @param array<string, string> $headers 追加ヘッダー
+     * @param array<string, mixed>  $body
+     * @param array<string, string> $headers
+     * @param array<string, string> $pathParameters
      */
     public function __construct(
         public array $body = [],
@@ -15,6 +16,9 @@ final class ReplaceContainerRequest implements RequestDtoInterface
     ) {
         if (empty($this->pathParameters['dbId']) || empty($this->pathParameters['collId'])) {
             throw new \InvalidArgumentException('Database id and Container id are required');
+        }
+        if (empty($this->body['id']) || empty($this->body['partitionKey'])) {
+            throw new \InvalidArgumentException('Container id and partitionKey is required.');
         }
     }
 }

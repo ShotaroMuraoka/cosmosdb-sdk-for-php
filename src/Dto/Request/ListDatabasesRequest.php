@@ -7,6 +7,7 @@ final class ListDatabasesRequest implements RequestDtoInterface
     /**
      * @param array<string, string> $body
      * @param array<string, string> $headers
+     * @param array<string, string> $pathParameters
      */
     public function __construct(
         public readonly array $body = [],

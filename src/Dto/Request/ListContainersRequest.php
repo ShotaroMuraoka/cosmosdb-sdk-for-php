@@ -5,8 +5,9 @@ namespace ShotaroMuraoka\CosmosDb\Dto\Request;
 final class ListContainersRequest implements RequestDtoInterface
 {
     /**
-     * @param array<string, mixed>  $body    ['dbId' => string]
-     * @param array<string, string> $headers 追加ヘッダー
+     * @param array<string, mixed>  $body
+     * @param array<string, string> $headers
+     * @param array<string, string> $pathParameters
      */
     public function __construct(
         public array $body = [],

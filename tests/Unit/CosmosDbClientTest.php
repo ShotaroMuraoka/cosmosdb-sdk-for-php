@@ -94,7 +94,7 @@ describe('Containers', function () {
     });
 
     it('lists containers', function () {
-        $body = ['id' => 'cont', 'partitionKey' => ['/pk']];
+        $body = [];
         $header = [];
         $pathParameters = ['dbId' => 'mydb'];
         $dto = new ListContainersRequest($body, $header, $pathParameters);
@@ -124,7 +124,7 @@ describe('Containers', function () {
     });
 
     it('replaces a container', function () {
-        $body = ['id' => 'cont', 'indexingPolicy' => []];
+        $body = ['id' => 'cont', 'partitionKey' => ['']];
         $dto = new ReplaceContainerRequest(
             pathParameters: ['dbId' => 'cont', 'collId' => 'mycoll'],
             body: $body
