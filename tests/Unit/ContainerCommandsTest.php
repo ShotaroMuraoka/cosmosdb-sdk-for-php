@@ -4,13 +4,9 @@ use ShotaroMuraoka\CosmosDb\CosmosDbClient;
 use ShotaroMuraoka\CosmosDb\Auth\AuthStrategyInterface;
 use ShotaroMuraoka\CosmosDb\Http\CosmosDbRequestSenderInterface;
 use ShotaroMuraoka\CosmosDb\Result\Result;
-use ShotaroMuraoka\CosmosDb\Dto\Request\CreateDatabaseRequest;
-use ShotaroMuraoka\CosmosDb\Dto\Request\DeleteDatabaseRequest;
-use ShotaroMuraoka\CosmosDb\Dto\Request\ListDatabasesRequest;
 use ShotaroMuraoka\CosmosDb\Dto\Request\CreateContainerRequest;
-use ShotaroMuraoka\CosmosDb\Dto\Request\DeleteContainerRequest;
 use ShotaroMuraoka\CosmosDb\Dto\Request\ListContainersRequest;
-use ShotaroMuraoka\CosmosDb\Dto\Request\GetDatabaseRequest;
+use ShotaroMuraoka\CosmosDb\Dto\Request\DeleteContainerRequest;
 use ShotaroMuraoka\CosmosDb\Dto\Request\GetContainerRequest;
 use ShotaroMuraoka\CosmosDb\Dto\Request\ReplaceContainerRequest;
 use ShotaroMuraoka\CosmosDb\Dto\Request\GetPartitionKeyRangesForContainerRequest;
@@ -37,54 +33,15 @@ beforeEach(function () {
             return [];
         }
     };
+
     $this->client = new CosmosDbClient($this->auth, $this->sender);
-});
-
-describe('Databases', function () {
-    it('create a database', function () {
-        $dto = new CreateDatabaseRequest(['id' => 'mydb']);
-        $result = $this->client->createDatabase($dto);
-
-        expect($this->sender->called['method'])->toBe('POST')
-            ->and($this->sender->called['resourcePath'])->toBe('/dbs/')
-            ->and($this->sender->called['body'])->toBe(['id' => 'mydb'])
-            ->and($result)->toBeInstanceOf(Result::class);
-    });
-
-    it('list databases', function () {
-        $dto = new ListDatabasesRequest();
-        $result = $this->client->listDatabases($dto);
-
-        expect($this->sender->called['method'])->toBe('GET')
-            ->and($this->sender->called['resourcePath'])->toBe('/dbs/')
-            ->and($result)->toBeInstanceOf(Result::class);
-    });
-
-    it('delete a database', function () {
-        $dto = new DeleteDatabaseRequest([], [], ['id' => 'mydb']);
-        $result = $this->client->deleteDatabase($dto);
-
-        expect($this->sender->called['method'])->toBe('DELETE')
-            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb')
-            ->and($result)->toBeInstanceOf(Result::class);
-    });
-
-    it('get a database', function () {
-        $dto = new GetDatabaseRequest([], [], ['id' => 'mydb']);
-        $result = $this->client->getDatabase($dto);
-
-        expect($this->sender->called['method'])->toBe('GET')
-            ->and($this->sender->called['resourcePath'])->toBe('/dbs/mydb')
-            ->and($result)->toBeInstanceOf(Result::class);
-    });
 });
 
 describe('Containers', function () {
     it('creates a container', function () {
         $body = ['id' => 'cont', 'partitionKey' => ['/pk']];
-        $header = [];
         $pathParameters = ['dbId' => 'mydb'];
-        $dto = new CreateContainerRequest($body, $header, $pathParameters);
+        $dto = new CreateContainerRequest($body, [], $pathParameters);
         $result = $this->client->createContainer($dto);
 
         expect($this->sender->called['method'])->toBe('POST')
@@ -94,10 +51,7 @@ describe('Containers', function () {
     });
 
     it('lists containers', function () {
-        $body = [];
-        $header = [];
-        $pathParameters = ['dbId' => 'mydb'];
-        $dto = new ListContainersRequest($body, $header, $pathParameters);
+        $dto = new ListContainersRequest([], [], ['dbId' => 'mydb']);
         $result = $this->client->listContainers($dto);
 
         expect($this->sender->called['method'])->toBe('GET')
