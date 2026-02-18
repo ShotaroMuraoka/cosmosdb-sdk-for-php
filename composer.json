@@ -1,6 +1,18 @@
 {
     "name": "muraokashotaro/cosmosdb-php",
     "description": "A simple CosmosDB client for PHP",
+    "keywords": [
+        "azure",
+        "cosmosdb",
+        "cosmos",
+        "nosql",
+        "php"
+    ],
+    "homepage": "https://github.com/ShotaroMuraoka/cosmosdb-sdk-for-php",
+    "support": {
+        "issues": "https://github.com/ShotaroMuraoka/cosmosdb-sdk-for-php/issues",
+        "source": "https://github.com/ShotaroMuraoka/cosmosdb-sdk-for-php"
+    },
     "require": {
         "php": ">=8.4",
         "guzzlehttp/guzzle": "^7.0"
@@ -26,9 +38,14 @@
         "pestphp/pest": "^3.8",
         "phpstan/phpstan": "^2.1"
     },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "analyse": "vendor/bin/phpstan analyse --debug --no-progress"
+    },
     "config": {
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
-    }
+    },
+    "prefer-stable": true
 }
